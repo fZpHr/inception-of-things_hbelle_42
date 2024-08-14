@@ -1,0 +1,46 @@
+Vagrant.configure("2") do |config|
+
+  # SERVER CONFIGURATION
+  config.vm.define "server" do |server|
+    server.vm.box = "debian/jessie64"
+    server.vm.network "private_network", ip: "192.168.56.110", interface: "eth1"
+    server.vm.network "forwarded_port", guest: 22, host: 4242, id: "ssh"
+    server.vm.provider "vmware_desktop" do |vmware|
+      vmware.customize ["modifyvm", :id, "--name", "hbelleS"]
+      vmware.gui = true
+      vmware.memory = "1024"
+      vmware.cpus = 1
+    end
+    server.ssh.insert_key = false
+    server.vm.provision "shell", inline: <<-SHELL
+      # Installer K3s en tant que serveur maître
+      curl -sSL https://get.k3s.io | sh -
+      # Copier le fichier kubeconfig pour l'accès externe
+      sudo cp /etc/rancher/k3s/k3s.yaml /vagrant/kubeconfig
+      # Modifier l'adresse IP dans le fichier kubeconfig
+      sed -i "s/127\\.0\\.0\\.1/192.168.56.110/" /vagrant/kubeconfig
+      # Extraire le token pour les agents
+      sudo cat /var/lib/rancher/k3s/server/node-token > /vagrant/node-token
+    SHELL
+  end
+
+  # SERVER WORKER CONFIGURATION
+  config.vm.define "serverWorker" do |serverWorker|
+    serverWorker.vm.box = "debian/jessie64"
+    serverWorker.vm.network "private_network", ip: "192.168.56.111", interface: "eth1"
+    serverWorker.vm.network "forwarded_port", guest: 22, host: 4243, id: "ssh"
+    serverWorker.vm.provider "vmware_desktop" do |vmware|
+      vmware.customize ["modifyvm", :id, "--name", "hbelleSW"]
+      vmware.gui = true
+      vmware.memory = "1024"
+      vmware.cpus = 1
+    end
+    serverWorker.ssh.insert_key = false
+    serverWorker.vm.provision "shell", inline: <<-SHELL
+      # Attendre que le fichier node-token soit disponible
+      while [ ! -f /vagrant/node-token ]; do sleep 1; done
+      # Installer K3s en tant qu'agent
+      curl -sfL https://get.k3s.io | K3S_URL=https://192.168.56.110:6443 K3S_TOKEN=$(cat /vagrant/node-token) sh -s - agent
+    SHELL
+  end
+end
