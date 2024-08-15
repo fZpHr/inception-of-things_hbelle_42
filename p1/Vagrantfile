@@ -1,4 +1,4 @@
-Vagrant.configure("2") do |config|
+Vagrant.configure("2") do |config| 
 
   # SERVER CONFIGURATION
   config.vm.define "hbelleS" do |server|
