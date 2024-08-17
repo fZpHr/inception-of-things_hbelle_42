@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app1-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app1
+  template:
+    metadata:
+      labels:
+        app: app1
+    spec:
+      containers:
+      - name: html
+        image: pierrezemb/gostatic
+        args: ["-port=80", "-path=/app"]
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: html
+          mountPath: /app
+      volumes:
+      - name: html
+        configMap:
+          name: app1-html
+          items:
+          - key: index.html
+            path: index.html
