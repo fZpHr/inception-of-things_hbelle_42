@@ -14,17 +14,14 @@ spec:
     spec:
       containers:
       - name: html
-        image: pierrezemb/gostatic
-        args: ["-port=80", "-path=/app"]
+        image: nginx
         ports:
         - containerPort: 80
         volumeMounts:
         - name: html
-          mountPath: /app
+          mountPath: /usr/share/nginx/html/index.html
       volumes:
       - name: html
-        configMap:
-          name: app1-html
-          items:
-          - key: index.html
-            path: index.html
+        hostPath:
+          path: /vagrant/app1/index.html
+          type: File

@@ -24,11 +24,6 @@ Vagrant.configure("2") do |config|
       # Modifier l'adresse IP dans le fichier kubeconfig
       sed -i "s/127\\.0\\.0\\.1/192.168.56.110/" /vagrant/kubeconfig
 
-      # Configmap pour les applications
-      sudo kubectl apply -f /vagrant/app1/configmap-app1.yaml
-      sudo kubectl apply -f /vagrant/app2/configmap-app2.yaml
-      sudo kubectl apply -f /vagrant/app3/configmap-app3.yaml
-
       # Déploiement des services
       sudo kubectl apply -f /vagrant/app1/service-app1.yaml
       sudo kubectl apply -f /vagrant/app2/service-app2.yaml
@@ -44,6 +39,19 @@ Vagrant.configure("2") do |config|
 
       # Déploiement de l'ingress
       sudo kubectl apply -f /vagrant/ingress.yaml
+
+      # attendre 30 secondes pour que les pods soient prêts
+      sleep 15
+
+      # Obtenir les noms des pods et les versions des systèmes d'exploitation
+      POD1=$(sudo kubectl get pods -l app=app1 -o jsonpath='{.items[0].metadata.name}')
+      POD2=$(sudo kubectl get pods -l app=app2 -o jsonpath='{.items[0].metadata.name}')
+      POD3=$(sudo kubectl get pods -l app=app3 -o jsonpath='{.items[0].metadata.name}')
+
+      # Ajout des noms des pods et des versions des systèmes d'exploitation dans les fichiers index.html
+      awk -v pod="$POD1" '{gsub(/pod:<\\/strong>.*/, "pod:<\\/strong> " pod)}1' /vagrant/app1/index.html > /vagrant/app1/index.html.tmp && mv /vagrant/app1/index.html.tmp /vagrant/app1/index.html
+      awk -v pod="$POD2" '{gsub(/pod:<\\/strong>.*/, "pod:<\\/strong> " pod)}1' /vagrant/app2/index.html > /vagrant/app2/index.html.tmp && mv /vagrant/app2/index.html.tmp /vagrant/app2/index.html
+      awk -v pod="$POD3" '{gsub(/pod:<\\/strong>.*/, "pod:<\\/strong> " pod)}1' /vagrant/app3/index.html > /vagrant/app3/index.html.tmp && mv /vagrant/app3/index.html.tmp /vagrant/app3/index.html
 
     SHELL
   end
