@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: app2-deployment
 spec:
-  replicas: 3 
+  replicas: 1
   selector:
     matchLabels:
       app: app2
@@ -15,13 +15,14 @@ spec:
       containers:
       - name: html
         image: nginx
+        command: ["/bin/sh", "-c", "/vagrant/scripts/script_html_app2.sh && nginx -g 'daemon off;'"]
         ports:
         - containerPort: 80
         volumeMounts:
-        - name: html
-          mountPath: /usr/share/nginx/html/index.html
+        - name: script
+          mountPath: /vagrant/scripts/script_html_app2.sh
       volumes:
-      - name: html
+      - name: script
         hostPath:
-          path: /vagrant/app2/index.html
+          path: /vagrant/scripts/script_html_app2.sh
           type: File

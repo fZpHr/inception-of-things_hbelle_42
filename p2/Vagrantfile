@@ -10,49 +10,10 @@ Vagrant.configure("2") do |config|
       vb.memory = "1024"
       vb.cpus = 1
     end
-    server.vm.synced_folder "./conf", "/vagrant", type: "nfs", nfs_version: 4
+    server.vm.synced_folder "./conf", "/vagrant/conf", type: "nfs", nfs_version: 4
+    server.vm.synced_folder "./scripts", "/vagrant/scripts", type: "nfs", nfs_version: 4
     server.vm.provision "shell", inline: <<-SHELL
-      set -x
-      sudo apt-get update
-      sudo apt-get install -y curl
-      # Installer K3s en tant que serveur maître avec un nom de nœud spécifique
-      curl -sSL https://get.k3s.io | sh -s - server --node-ip 192.168.56.110 --node-name hbelleS
-
-      # Copier le fichier kubeconfig pour l'accès externe
-      sudo cp /etc/rancher/k3s/k3s.yaml /vagrant/kubeconfig
-
-      # Modifier l'adresse IP dans le fichier kubeconfig
-      sed -i "s/127\\.0\\.0\\.1/192.168.56.110/" /vagrant/kubeconfig
-
-      # Déploiement des services
-      sudo kubectl apply -f /vagrant/app1/service-app1.yaml
-      sudo kubectl apply -f /vagrant/app2/service-app2.yaml
-      sudo kubectl apply -f /vagrant/app3/service-app3.yaml
-
-      # Attente de 30 secondes pour que les services soient prêts
-      sleep 30
-      
-      # Déploiement des pods
-      sudo kubectl apply -f /vagrant/app1/deployment-app1.yaml
-      sudo kubectl apply -f /vagrant/app2/deployment-app2.yaml
-      sudo kubectl apply -f /vagrant/app3/deployment-app3.yaml
-
-      # Déploiement de l'ingress
-      sudo kubectl apply -f /vagrant/ingress.yaml
-
-      # attendre 30 secondes pour que les pods soient prêts
-      sleep 15
-
-      # Obtenir les noms des pods et les versions des systèmes d'exploitation
-      POD1=$(sudo kubectl get pods -l app=app1 -o jsonpath='{.items[0].metadata.name}')
-      POD2=$(sudo kubectl get pods -l app=app2 -o jsonpath='{.items[0].metadata.name}')
-      POD3=$(sudo kubectl get pods -l app=app3 -o jsonpath='{.items[0].metadata.name}')
-
-      # Ajout des noms des pods et des versions des systèmes d'exploitation dans les fichiers index.html
-      awk -v pod="$POD1" '{gsub(/pod:<\\/strong>.*/, "pod:<\\/strong> " pod)}1' /vagrant/app1/index.html > /vagrant/app1/index.html.tmp && mv /vagrant/app1/index.html.tmp /vagrant/app1/index.html
-      awk -v pod="$POD2" '{gsub(/pod:<\\/strong>.*/, "pod:<\\/strong> " pod)}1' /vagrant/app2/index.html > /vagrant/app2/index.html.tmp && mv /vagrant/app2/index.html.tmp /vagrant/app2/index.html
-      awk -v pod="$POD3" '{gsub(/pod:<\\/strong>.*/, "pod:<\\/strong> " pod)}1' /vagrant/app3/index.html > /vagrant/app3/index.html.tmp && mv /vagrant/app3/index.html.tmp /vagrant/app3/index.html
-
+      bash /vagrant/scripts/script_master.sh
     SHELL
   end
 end

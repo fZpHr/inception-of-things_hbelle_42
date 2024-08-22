@@ -1,8 +1,26 @@
+#!/bin/bash
+
+# Obtenir le nom du pod à partir des variables d'environnement
+POD_NAME=$(hostname)
+
+# Obtenir la version du système d'exploitation à l'intérieur du pod
+VERSION=$(uname -a | awk '{for (i=6; i<NF; i++) printf $i " "; print ""}')
+
+# Créer le répertoire s'il n'existe pas
+if [ ! -d /usr/share/nginx/html ]; then
+    mkdir -p /usr/share/nginx/html
+fi
+
+if [ -f /usr/share/nginx/html/index.html ]; then
+    rm /usr/share/nginx/html/index.html
+fi
+# Créer le fichier HTML directement dans le pod avec les privilèges root
+sh -c "cat <<EOF > /usr/share/nginx/html/index.html
 <!DOCTYPE html>
-<html lang="en">
+<html lang=\"en\">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset=\"UTF-8\">
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
     <title>Kubernetes App</title>
     <style>
         body {
@@ -64,19 +82,20 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/3/39/Kubernetes_logo_without_workmark.svg" alt="Kubernetes Icon">
+    <div class=\"header\">
+        <img src=\"https://upload.wikimedia.org/wikipedia/commons/3/39/Kubernetes_logo_without_workmark.svg\" alt=\"Kubernetes Icon\">
         <h1>kubernetes</h1>
     </div>
-    <div class="separator"></div>
-    <div class="message">Hello from app1.</div>
-    <div class="info-container">
-        <div class="info">
-            <strong>pod:<\/strong> app1-deployment-5bc5fb7bdc-5n7sg
+    <div class=\"separator\"></div>
+    <div class=\"message\">Hello from app2.</div>
+    <div class=\"info-container\">
+        <div class=\"info\">
+            <strong>pod:</strong> $POD_NAME
         </div>
-        <div class="info">
-            <strong>node:</strong> Debian 5.10.218-1 (2024-06-01) x86_64 
+        <div class=\"info\">
+            <strong>node:</strong> $VERSION
         </div>
     </div>
 </body>
 </html>
+EOF"
