@@ -14,7 +14,6 @@ fi
 if [ -f /usr/share/nginx/html/index.html ]; then
     rm /usr/share/nginx/html/index.html
 fi
-# Créer le fichier HTML directement dans le pod avec les privilèges root
 sh -c "cat <<EOF > /usr/share/nginx/html/index.html
 <!DOCTYPE html>
 <html lang=\"en\">
