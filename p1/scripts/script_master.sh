@@ -1,9 +1,11 @@
 #!/bin/bash
 
 set -x
+
 sudo apt-get update
+
 sudo apt-get install -y curl
-# Installer K3s en tant que serveur maître avec un nom de nœud spécifique
+# Installer K3s en tant que serveur maître avec un nom de nœud spécifique 
 curl -sSL https://get.k3s.io | sh -s - server --node-ip 192.168.56.110 --node-name hbelleS
 # Copier le fichier kubeconfig pour l'accès externe
 sudo cp /etc/rancher/k3s/k3s.yaml /vagrant/kubeconfig
