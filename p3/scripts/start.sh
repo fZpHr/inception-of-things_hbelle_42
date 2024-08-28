@@ -5,6 +5,8 @@ set -e  # Arrête le script en cas d'erreur
 # Couleurs
 BLUE='\033[34m'
 GREEN='\033[32m'
+PURPLE='\033[35m'
+
 YELLOW='\033[33m'
 GRAY='\033[90m'
 RED='\033[31m'
@@ -86,7 +88,6 @@ else
 fi
 
 IP_ARGO=$(kubectl get node -o wide | awk 'NR==2 {print $6}')
-IP_APP=$(sudo kubectl get svc argocd-server -n argocd | awk 'NR==3 {print $3}')
 PSSWD_ARGO=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode)
-echo -e "${GREEN}Script completed successfully. Access ArgoCD at https://$IP_ARGO:30080 , password: $PSSWD_ARGO${NC}"
-
+echo -e "${GREEN}Script completed successfully. Access ArgoCD at ${PURPLE}https://$IP_ARGO:30080${GREEN}, id: ${PURPLE}admin${GREEN},  password: ${PURPLE}$PSSWD_ARGO${GREEN}"
+echo -e "${GREEN}Access the application at ${PURPLE}http://$IP_ARGO:30088${NC}"
