@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: 'https://github.com/fZpHr/inception-of-things_42/'
     targetRevision: HEAD
-    path: 'p3/conf/sync'
+    path: 'p3/confs/sync'
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: dev

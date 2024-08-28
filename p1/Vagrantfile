@@ -1,3 +1,6 @@
+
+FileUtils.mkdir_p('./confs')
+
 Vagrant.configure("2") do |config| 
 
   # SERVER CONFIGURATION
@@ -10,7 +13,8 @@ Vagrant.configure("2") do |config|
       vb.memory = "1024"
       vb.cpus = 1
     end
-    server.vm.synced_folder "./conf", "/vagrant/conf", type: "nfs", nfs_version: 4
+
+    server.vm.synced_folder "./confs", "/vagrant/confs", type: "nfs", nfs_version: 4
     server.vm.synced_folder "./scripts", "/vagrant/scripts", type: "nfs", nfs_version: 4
     server.vm.provision "shell", inline: <<-SHELL
       bash /vagrant/scripts/script_master.sh
@@ -27,7 +31,8 @@ Vagrant.configure("2") do |config|
       vb.memory = "1024"
       vb.cpus = 1
     end
-    serverWorker.vm.synced_folder "./conf", "/vagrant", type: "nfs", nfs_version: 4
+    serverWorker.vm.synced_folder "./confs", "/vagrant/confs", type: "nfs", nfs_version: 4
+    serverWorker.vm.synced_folder "./scripts", "/vagrant/scripts", type: "nfs", nfs_version: 4
     serverWorker.vm.provision "shell", inline: <<-SHELL
       bash /vagrant/scripts/script_worker.sh
     SHELL

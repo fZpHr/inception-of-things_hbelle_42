@@ -58,7 +58,7 @@ fi
 
 # Application de la configuration ArgoCD
 echo -e "${BLUE}Applying ArgoCD server configuration...${NC}"
-if ! execute "kubectl apply -f ../conf/argocd-server.yaml"; then
+if ! execute "kubectl apply -f ../confs/argocd-server.yaml"; then
     echo -e "${RED}Failed to apply ArgoCD server configuration.${NC}"
     exit 1
 fi
@@ -79,12 +79,14 @@ if execute "kubectl get applications -n argocd | grep -q 'argocd-application'"; 
     echo -e "${YELLOW}ArgoCD application is already configured.${NC}"
 else
     echo -e "${BLUE}Applying ArgoCD application configuration...${NC}"
-    if ! execute "kubectl apply -n argocd -f ../conf/argocd.yaml"; then
+    if ! execute "kubectl apply -n argocd -f ../confs/argocd.yaml"; then
         echo -e "${RED}Failed to apply ArgoCD application configuration.${NC}"
         exit 1
     fi
 fi
 
-IP=$(kubectl get node -o wide | awk 'NR==2 {print $6}')
-PSSWD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode)
-echo -e "${GREEN}Script completed successfully. Access ArgoCD at https://$IP:30080 , password: $PSSWD${NC}"
+IP_ARGO=$(kubectl get node -o wide | awk 'NR==2 {print $6}')
+IP_APP=$(sudo kubectl get svc argocd-server -n argocd | awk 'NR==3 {print $3}')
+PSSWD_ARGO=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode)
+echo -e "${GREEN}Script completed successfully. Access ArgoCD at https://$IP_ARGO:30080 , password: $PSSWD_ARGO${NC}"
+

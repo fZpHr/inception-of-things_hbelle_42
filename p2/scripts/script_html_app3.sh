@@ -67,7 +67,7 @@ sh -c "cat <<EOF > /usr/share/nginx/html/index.html
             margin-bottom: 80px;
         }
         .info-container {
-            width: 500px; /* Largeur suffisante pour garder le texte sur une seule ligne */
+            width: 500px;
             text-align: left;
         }
         .info {
@@ -75,9 +75,9 @@ sh -c "cat <<EOF > /usr/share/nginx/html/index.html
         }
         .info strong {
             color: #ffffff;
-            padding-right: 20px; /* Ajout d'espace entre le label (pod:, node:) et le texte */
+            padding-right: 20px;
             display: inline-block;
-            width: 80px; /* Largeur fixe pour aligner les labels */
+            width: 80px;
         }
     </style>
 </head>
