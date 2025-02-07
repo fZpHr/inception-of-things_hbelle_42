@@ -1,8 +1,7 @@
 #!/bin/bash
 
-set -e  # Arrête le script en cas d'erreur
+set -e
 
-# Couleurs
 BLUE='\033[34m'
 GREEN='\033[32m'
 PURPLE='\033[35m'
@@ -11,13 +10,11 @@ GRAY='\033[90m'
 RED='\033[31m'
 NC='\033[0m'
 
-# Exécution de commande avec affichage en gris
 execute() {
     echo -e "${GRAY}$1${NC}"
     eval $1
 }
 
-# Vérifier si le cluster existe déjà
 if k3d cluster list | grep -q "^p3 "; then
     echo -e "${YELLOW}Cluster 'p3' already exists.${NC}"
 else
@@ -28,7 +25,6 @@ else
     fi
 fi
 
-# Vérifier si le namespace argocd existe déjà
 if execute "kubectl get namespace argocd &> /dev/null"; then
     echo -e "${YELLOW}Namespace 'argocd' already exists.${NC}"
 else
@@ -39,7 +35,6 @@ else
     fi
 fi
 
-# Vérifier si ArgoCD est déjà installé
 if execute "kubectl get deployments -n argocd | grep -q 'argocd-server'"; then
     echo -e "${YELLOW}ArgoCD is already installed.${NC}"
 else
@@ -49,7 +44,6 @@ else
         exit 1
     fi
 
-    # Attendre que ArgoCD soit prêt
     echo -e "${BLUE}Waiting for ArgoCD to be ready...${NC}"
     if ! execute "kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=300s"; then
         echo -e "${RED}ArgoCD is not ready after waiting.${NC}"
@@ -57,14 +51,12 @@ else
     fi
 fi
 
-# Application de la configuration ArgoCD
 echo -e "${BLUE}Applying ArgoCD server configuration...${NC}"
 if ! execute "kubectl apply -f ../confs/argocd-server.yaml"; then
     echo -e "${RED}Failed to apply ArgoCD server configuration.${NC}"
     exit 1
 fi
 
-# Vérifier si le namespace dev existe déjà
 if execute "kubectl get namespace dev &> /dev/null"; then
     echo -e "${YELLOW}Namespace 'dev' already exists.${NC}"
 else
@@ -75,7 +67,6 @@ else
     fi
 fi
 
-# Vérifier si l'application ArgoCD existe déjà
 if execute "kubectl get applications -n argocd | grep -q 'argocd-application'"; then
     echo -e "${YELLOW}ArgoCD application is already configured.${NC}"
 else

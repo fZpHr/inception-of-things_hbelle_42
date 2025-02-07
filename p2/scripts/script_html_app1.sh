@@ -1,12 +1,9 @@
 #!/bin/bash
 
-# Obtenir le nom du pod à partir des variables d'environnement
 POD_NAME=$(hostname)
 
-# Obtenir la version du système d'exploitation à l'intérieur du pod
 VERSION=$(uname -a | awk '{for (i=6; i<NF; i++) printf $i " "; print ""}')
 
-# Créer le répertoire s'il n'existe pas
 if [ ! -d /usr/share/nginx/html ]; then
     mkdir -p /usr/share/nginx/html
 fi
