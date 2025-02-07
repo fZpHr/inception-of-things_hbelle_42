@@ -206,7 +206,7 @@ main() {
     log "INFO" "ArgoCD Credentials: ${PURPLE}admin / $(kubectl get secret -n argocd argocd-initial-admin-secret -ojsonpath='{.data.password}' | base64 --decode)${NC}"
     log "INFO" "Exec 'kubectl port-forward svc/argocd-server -n argocd 8123:80' to access ArgoCD UI at http://localhost:8123"
     log "INFO" "GitLab Credentials: ${PURPLE}root / $(kubectl get secret -n gitlab gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode)${NC}"
-    log "INFO" "Exec 'kubectl port-forward svc/gitlab -n gitlab 8321:80' to access GitLab UI at http://localhost:8321"
+    log "INFO" "Exec 'kubectl port-forward svc/gitlab-server -n gitlab 8321:80' to access GitLab UI at http://localhost:8321"
 
     kubectl create namespace dev 2>/dev/null || true
 }
