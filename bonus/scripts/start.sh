@@ -202,7 +202,6 @@ main() {
     install_gitlab
     wait_for_gitlab
     
-    kubectl port-forward svc/argocd-server -n argocd 8084:80
     log "SUCCESS" "Deployment completed successfully!"
     log "INFO" "ArgoCD Credentials: ${PURPLE}admin / $(kubectl get secret -n argocd argocd-initial-admin-secret -ojsonpath='{.data.password}' | base64 --decode)${NC}"
     log "INFO" "Exec 'kubectl port-forward svc/argocd-server -n argocd 8123:80' to access ArgoCD UI at http://localhost:8123"
