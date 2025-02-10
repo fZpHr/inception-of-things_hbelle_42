@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/fZpHr/inception-of-things_42/'
+    repoURL: 'https://github.com/fZpHr/inception-of-things_hbelle_42/'
     targetRevision: HEAD
     path: 'p3/confs/sync'
   destination:

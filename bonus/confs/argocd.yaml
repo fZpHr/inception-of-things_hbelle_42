@@ -6,8 +6,8 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/fZpHr/inception-of-things_42/'
-    targetRevision: HEAD
+    repoURL: 'http://10.42.0.17/root/t.git'
+    targetRevision: '7ca0d59406b2007e34887c34378af6725b7fa31b'
     path: 'p3/confs/sync'
   destination:
     server: 'https://kubernetes.default.svc'
