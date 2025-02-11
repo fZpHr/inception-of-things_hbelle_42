@@ -77,6 +77,9 @@ else
     fi
 fi
 
+mkdir -p ~/tmp
+touch ~/tmp/p3
+
 IP_ARGO=$(kubectl get node -o wide | awk 'NR==2 {print $6}')
 while ! kubectl -n argocd get secret argocd-initial-admin-secret > /dev/null 2>&1; do
   echo "Secret not found, retrying in 5 seconds..."

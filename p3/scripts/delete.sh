@@ -58,4 +58,9 @@ else
     echo -e "${GREEN}Namespace 'dev' successfully deleted.${NC}"
 fi
 
+if [ -f ~/tmp/p3 ]; then
+    echo -e "${BLUE}Deleting p3 indic...${NC}"
+    rm -f ~/tmp/p3
+fi
+
 echo -e "${GREEN}Cleanup script completed successfully.${NC}"

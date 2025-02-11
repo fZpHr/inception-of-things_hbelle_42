@@ -10,6 +10,7 @@ RED='\033[31m'
 NC='\033[0m'
 TIMEOUT_LONG=3600
 
+
 log() {
     local level="$1"
     local message="$2"
@@ -22,6 +23,15 @@ log() {
         *)         color=$GRAY ;;
     esac
     echo -e "${color}[$level] $message${NC}"
+}
+
+
+launch_p3()
+{
+    if [ ! -f ~/tmp/p3 ]; then
+        cd ../../p3/scripts && bash start.sh
+        cd ../../bonus/scripts
+    fi
 }
 
 install_gitlab() {
@@ -69,32 +79,72 @@ wait_for_gitlab() {
     done
 }
 
+create_project() {
+    local project_name=$1
+    local description=$2
+    local visibility=${3:-private}
+    
+    log "INFO" "Creating project: $project_name"
+    
+    kubectl exec -it $POD -n gitlab -- gitlab-rails runner "
+        begin
+            user = User.find_by(username: 'root')
+            project = Projects::CreateService.new(
+                user,
+                {
+                    name: '$project_name',
+                    description: '$description',
+                    visibility_level: Gitlab::VisibilityLevel.const_get('${visibility}'.upcase),
+                    initialize_with_readme: true
+                }
+            ).execute
+            
+            if project.persisted?
+                puts \"Project created successfully: #{project.full_path}\"
+                exit 0
+            else
+                puts \"Failed to create project: #{project.errors.full_messages.join(', ')}\"
+                exit 1
+            end
+        rescue => e
+            puts \"Error: #{e.message}\"
+            exit 1
+        end"
+}
+
+
 main() {
     log "INFO" "Starting deployment process..."
     set -e
     
+    launch_p3
     install_gitlab
     wait_for_gitlab
-    
-    while [[ $(kubectl get pods -n gitlab -l app=gitlab -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do
-        sleep 5
-    done
-    POD=$(kubectl get pods -n gitlab -l app=gitlab -o jsonpath="{.items[0].metadata.name}")
 
-    kubectl exec -it $POD -n gitlab -- gitlab-rails runner "
+    POD=$(kubectl get pods -n gitlab --show-labels | grep gitlab | awk '{print $1}')
+    while ! kubectl exec -it $POD -n gitlab -- gitlab-rails runner "
     user = User.find_by(username: 'root')
     user.password = 'new_password'
     user.password_confirmation = 'new_password'
+    key = '~/.ssh/id_rsa'
     user.save!
-    "
-    kubectl delete application wil42-playground -n argocd
+    "; do
+        log "ERROR" "Failed to set GitLab root password, retrying..."
+        sleep 10
+    done
+
+    log "INFO" "Waiting for GitLab to be ready..."
+    sleep 10
+
+    create_project "test" "automatic repo" "public"
+    if kubectl get application wil42-playground -n argocd >/dev/null 2>&1; then
+        kubectl delete application wil42-playground -n argocd
+    else
+        log "WARNING" "Application wil42-playground does not exist in namespace argocd"
+    fi
     log "SUCCESS" "Deployment completed successfully!"
     IP_ARGO=$(kubectl get node -o wide | awk 'NR==2 {print $6}')
     log "INFO" "to access GitLab UI at http://$IP_ARGO:30081"
-
-    # sudo kubectl get pods -n gitlab -o wide
-    # kubectl apply -f ../confs/argocd.yaml
-    # sudo kubectl apply -f ../confs/gitlab-secret.yaml
 }
 
 main "$@"
