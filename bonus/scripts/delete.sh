@@ -30,9 +30,7 @@ delete_bonus() {
         echo -e "${YELLOW}Namespace 'gitlab' does not exist.${NC}"
     fi
 
-    #pkill -f "kubectl port-forward" &
     k3d cluster delete p3
-
     docker system prune -af
     docker volume prune -f
     docker network prune -f

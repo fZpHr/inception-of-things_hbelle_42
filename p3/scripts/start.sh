@@ -88,3 +88,6 @@ done
 PSSWD_ARGO=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode)
 echo -e "${GREEN}Script completed successfully. Access ArgoCD at ${PURPLE}https://$IP_ARGO:30080${GREEN}, id: ${PURPLE}admin${GREEN},  password: ${PURPLE}$PSSWD_ARGO${GREEN}"
 echo -e "${GREEN}Access the application at ${PURPLE}http://$IP_ARGO:30088${NC}"
+
+#sudo kubectl get pods -n dev
+#sudo kubectl port-forward pod/nom_du_pod -n dev 8888:8888

@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'http://10.42.0.24/root/test.git'
+    repoURL: 'http://10.42.0.16/root/test.git'
     targetRevision: 'main'
     path: 'p3/confs/sync'
   destination:

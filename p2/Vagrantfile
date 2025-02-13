@@ -1,18 +1,24 @@
-Vagrant.configure("2") do |config| 
+## VARIABLES
+CONTROLLER_IP = "192.168.56.110"
 
-  config.vm.define "hbelleS" do |server|
-    server.vm.box = "debian/bullseye64"
-    server.vm.network "private_network", ip: "192.168.56.110", interface: "eth1"
-    server.vm.network "forwarded_port", guest: 22, host: 4242, id: "ssh"
-    server.vm.provider "virtualbox" do |vb|
-      vb.name = "hbelleS"
-      vb.memory = "1024"
-      vb.cpus = 1
+CONTROLLER_NAME = "bapasquiS"
+
+MEM = 4096
+CORE = 3
+
+## VAGRANT CONFIG
+Vagrant.configure("2") do |config|
+  config.vm.box = "debian/bookworm64"
+  
+  config.vm.define CONTROLLER_NAME do |controller|
+    controller.vm.hostname = CONTROLLER_NAME
+    controller.vm.provider "virtualbox" do |v|
+      v.memory = MEM
+      v.cpus = CORE
+      v.name = CONTROLLER_NAME
     end
-    server.vm.synced_folder "./confs", "/vagrant/confs", type: "nfs", nfs_version: 4
-    server.vm.synced_folder "./scripts", "/vagrant/scripts", type: "nfs", nfs_version: 4
-    server.vm.provision "shell", inline: <<-SHELL
-      bash /vagrant/scripts/script_master.sh
-    SHELL
+    controller.vm.network "private_network", type: "static", ip: CONTROLLER_IP, interface: "eth1"
+    controller.vm.provision "shell", path: "scripts/server.sh", args: [CONTROLLER_IP]
+    controller.vm.provision "shell", path: "scripts/setup.sh"
   end
 end

@@ -126,15 +126,12 @@ main() {
     user = User.find_by(username: 'root')
     user.password = 'new_password'
     user.password_confirmation = 'new_password'
-    key = '~/.ssh/id_rsa'
     user.save!
     "; do
         log "ERROR" "Failed to set GitLab root password, retrying..."
         sleep 10
     done
 
-    log "INFO" "Waiting for GitLab to be ready..."
-    sleep 10
 
     create_project "test" "automatic repo" "public"
     if kubectl get application wil42-playground -n argocd >/dev/null 2>&1; then
